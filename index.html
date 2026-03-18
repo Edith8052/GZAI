@@ -24,7 +24,6 @@
             padding-bottom: env(safe-area-inset-bottom);
         }
 
-        /* 隐藏滚动条 */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -33,18 +32,37 @@
             to { transform: translateX(0); opacity: 1; }
         }
         .animate-slide { animation: slideIn 0.3s ease-out forwards; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .animate-fade { animation: fadeIn 0.2s ease-out forwards; }
+
+        .payment-option input:checked + label {
+            border-color: #4f46e5;
+            background-color: rgba(79, 70, 229, 0.1);
+        }
     </style>
 </head>
 <body class="flex justify-center items-center min-h-screen bg-slate-900">
 
     <div id="app-container" class="w-full max-w-md h-[844px] bg-slate-950 text-slate-200 overflow-hidden relative shadow-2xl flex flex-col border border-slate-800">
         
-        <!-- 登录注册模块 (覆盖全屏) -->
+        <!-- 全局弹窗提示 -->
+        <div id="toast-modal" class="hidden fixed inset-0 z-[400] flex items-center justify-center pointer-events-none">
+            <div class="bg-indigo-600 text-white px-6 py-3 rounded-2xl shadow-2xl animate-fade flex items-center space-x-2">
+                <i class="fa-solid fa-check-circle"></i>
+                <span id="toast-text">操作成功</span>
+            </div>
+        </div>
+
+        <!-- 登录注册模块 -->
         <div id="auth-section" class="absolute inset-0 z-[200] bg-slate-950 p-8 flex flex-col">
             <div id="auth-login" class="flex flex-col h-full">
                 <div class="mt-12 mb-12">
                     <h1 class="text-3xl font-bold text-white mb-2">欢迎回来</h1>
-                    <p class="text-slate-500 text-sm">登录 DeepTalk，开始智性交流</p>
+                    <p class="text-slate-500 text-sm">登录 DeepTalk，开启智性交流</p>
                 </div>
                 <div class="space-y-4">
                     <input type="email" placeholder="邮箱地址" class="w-full bg-slate-900 border border-slate-800 p-4 rounded-2xl outline-none focus:border-indigo-500 transition-all">
@@ -62,7 +80,7 @@
             <div id="auth-register" class="hidden flex flex-col h-full animate-slide">
                 <div class="mt-12 mb-8">
                     <h1 class="text-3xl font-bold text-white mb-2">创建账号</h1>
-                    <p class="text-slate-500 text-sm">通过邮箱验证开启试用</p>
+                    <p class="text-slate-500 text-sm">通过邮箱验证开启深度体验</p>
                 </div>
                 <div class="space-y-4">
                     <div class="relative">
@@ -93,15 +111,16 @@
             </div>
         </div>
 
-        <!-- 页面顶部 -->
+        <!-- 页面顶部 (移除了计时器) -->
         <div id="main-header" class="hidden flex justify-between items-center px-6 pt-6 pb-4 bg-slate-950/80 sticky top-0 z-50">
             <div>
                 <h1 id="page-title" class="text-xl font-bold text-white">发现</h1>
-                <p id="sub-title" class="text-[10px] text-slate-500 uppercase">120min Trial Active</p>
+                <p id="sub-title" class="text-[10px] text-indigo-400 uppercase tracking-widest font-bold">DeepTalk Premium Space</p>
             </div>
-            <div class="flex items-center space-x-3 bg-indigo-500/10 px-3 py-1.5 rounded-full border border-indigo-500/30">
-                <i class="fa-solid fa-hourglass-start text-indigo-400 text-xs"></i>
-                <span id="trial-timer" class="text-xs font-mono text-indigo-300">120:00</span>
+            <div class="flex items-center space-x-2">
+                <div class="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30">
+                    <i class="fa-solid fa-crown text-indigo-400 text-xs"></i>
+                </div>
             </div>
         </div>
 
@@ -118,53 +137,117 @@
                 <div class="flex flex-col items-center py-6">
                     <div class="relative mb-4">
                         <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" class="w-20 h-20 rounded-3xl border border-indigo-500 p-1">
+                        <div class="absolute -bottom-1 -right-1 bg-indigo-600 w-6 h-6 rounded-full border-2 border-slate-950 flex items-center justify-center">
+                            <i class="fa-solid fa-check text-[10px]"></i>
+                        </div>
                     </div>
-                    <div class="flex items-center space-x-2">
-                        <input id="nickname-input" type="text" value="Fantuan" class="bg-transparent text-xl font-bold text-center w-40 outline-none border-b border-transparent focus:border-indigo-500">
-                        <i class="fa-solid fa-pen-to-square text-slate-500 text-xs"></i>
-                    </div>
-                    <p id="user-email" class="text-xs text-slate-500 mt-1">fantuan@deeptalk.ai</p>
+                    <h2 id="display-nickname" class="text-xl font-bold">DeepUser_8829</h2>
+                    <p id="user-email-profile" class="text-xs text-slate-500 mt-1">user@deeptalk.ai</p>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4 mb-8">
                     <div class="glass-morphism p-4 rounded-2xl text-center">
-                        <p class="text-[10px] text-slate-500 mb-1">剩余免费时长</p>
-                        <p class="text-lg font-bold text-indigo-400">120 <span class="text-[10px] font-normal">min</span></p>
+                        <p class="text-[10px] text-slate-500 mb-1 uppercase tracking-tighter">账户时长</p>
+                        <p class="text-lg font-bold text-indigo-400">120 <span class="text-[10px] font-normal italic">min</span></p>
                     </div>
                     <div class="glass-morphism p-4 rounded-2xl text-center">
-                        <p class="text-[10px] text-slate-500 mb-1">对话额度</p>
-                        <p class="text-lg font-bold text-emerald-400">10 <span class="text-[10px] font-normal">次</span></p>
+                        <p class="text-[10px] text-slate-500 mb-1 uppercase tracking-tighter">对话次数</p>
+                        <p class="text-lg font-bold text-emerald-400">10 <span class="text-[10px] font-normal italic">次</span></p>
                     </div>
                 </div>
 
-                <div class="space-y-2">
-                    <div onclick="switchPage('pay')" class="glass-morphism p-4 rounded-2xl flex justify-between items-center cursor-pointer hover:bg-white/10">
-                        <div class="flex items-center space-x-3">
-                            <i class="fa-solid fa-gem text-amber-500"></i>
+                <div class="space-y-3">
+                    <div onclick="switchPage('pay')" class="glass-morphism p-4 rounded-2xl flex justify-between items-center cursor-pointer hover:bg-white/10 transition-all border-l-2 border-amber-500/50">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 bg-amber-500/10 rounded-xl flex items-center justify-center">
+                                <i class="fa-solid fa-gem text-amber-500"></i>
+                            </div>
                             <span>充值中心</span>
                         </div>
                         <i class="fa-solid fa-chevron-right text-xs text-slate-600"></i>
                     </div>
-                    <div class="glass-morphism p-4 rounded-2xl flex justify-between items-center">
-                        <div class="flex items-center space-x-3">
-                            <i class="fa-solid fa-lock text-slate-400"></i>
-                            <span>修改登录密码</span>
+                    <div onclick="switchPage('settings')" class="glass-morphism p-4 rounded-2xl flex justify-between items-center cursor-pointer hover:bg-white/10 transition-all">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center">
+                                <i class="fa-solid fa-gear text-slate-400"></i>
+                            </div>
+                            <span>账号设置</span>
                         </div>
                         <i class="fa-solid fa-chevron-right text-xs text-slate-600"></i>
                     </div>
-                    <button onclick="location.reload()" class="w-full text-center text-red-500/70 text-sm mt-8">退出登录</button>
+                    
+                    <div class="pt-6">
+                        <button onclick="location.reload()" class="w-full flex items-center justify-center space-x-2 py-4 rounded-2xl border border-red-500/20 text-red-500/80 text-sm font-medium hover:bg-red-500/5 transition-all">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                            <span>退出当前登录</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 设置详情页面 -->
+            <div id="page-settings" class="hidden px-6 pt-4 animate-slide">
+                <div class="mb-6 flex items-center">
+                    <button onclick="switchPage('profile')" class="mr-4 text-slate-400 p-2"><i class="fa-solid fa-arrow-left"></i></button>
+                    <h2 class="text-xl font-bold">设置</h2>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="glass-morphism p-5 rounded-3xl space-y-6">
+                        <div class="space-y-2">
+                            <label class="text-xs text-slate-500 ml-1">修改昵称</label>
+                            <div class="flex items-center bg-slate-900 rounded-2xl px-4 py-3 border border-slate-800">
+                                <input id="nickname-input" type="text" value="DeepUser_8829" class="bg-transparent flex-1 outline-none text-sm">
+                                <i class="fa-solid fa-pencil text-slate-600 text-xs"></i>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-xs text-slate-500 ml-1">修改邮箱</label>
+                            <div class="flex items-center bg-slate-900 rounded-2xl px-4 py-3 border border-slate-800">
+                                <input id="email-input" type="email" value="user@deeptalk.ai" class="bg-transparent flex-1 outline-none text-sm">
+                                <i class="fa-solid fa-envelope text-slate-600 text-xs"></i>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-xs text-slate-500 ml-1">安全中心</label>
+                            <button class="w-full flex justify-between items-center bg-slate-900 rounded-2xl px-4 py-4 border border-slate-800 text-sm">
+                                <span class="text-slate-400">修改登录密码</span>
+                                <i class="fa-solid fa-lock text-[10px] text-slate-600"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="glass-morphism p-5 rounded-3xl mt-4">
+                        <label class="text-xs text-slate-500 ml-1 mb-3 block">支持与联系</label>
+                        <div onclick="copyEmail()" class="flex justify-between items-center cursor-pointer hover:bg-white/5 p-2 rounded-xl transition-all">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-indigo-500/20 rounded-xl flex items-center justify-center">
+                                    <i class="fa-solid fa-headset text-indigo-400"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm">在线联系</p>
+                                    <p class="text-[10px] text-slate-500">zhonghuimin5@gmail.com</p>
+                                </div>
+                            </div>
+                            <i class="fa-solid fa-copy text-xs text-slate-600"></i>
+                        </div>
+                    </div>
+                    
+                    <button onclick="saveSettings()" class="w-full bg-indigo-600 py-4 rounded-2xl font-bold mt-4 shadow-lg shadow-indigo-500/20">保存所有更改</button>
                 </div>
             </div>
 
             <!-- 充值中心页面 -->
             <div id="page-pay" class="hidden px-6 pt-4 animate-slide">
                 <div class="mb-6 flex items-center">
-                    <button onclick="switchPage('profile')" class="mr-4 text-slate-400"><i class="fa-solid fa-arrow-left"></i></button>
+                    <button onclick="switchPage('profile')" class="mr-4 text-slate-400 p-2"><i class="fa-solid fa-arrow-left"></i></button>
                     <h2 class="text-xl font-bold">充值中心</h2>
                 </div>
                 
                 <div class="space-y-4 pb-8">
-                    <div class="glass-morphism p-5 rounded-3xl border-l-4 border-indigo-500 relative overflow-hidden group">
+                    <div onclick="openCheckout('月度会员', '199', '每月30小时通话')" class="glass-morphism p-5 rounded-3xl border-l-4 border-indigo-500 cursor-pointer hover:bg-white/10 transition-all">
                         <div class="flex justify-between items-start mb-4">
                             <div>
                                 <h3 class="font-bold text-lg">月度会员</h3>
@@ -180,7 +263,7 @@
                         </div>
                     </div>
 
-                    <div class="glass-morphism p-5 rounded-3xl border-l-4 border-amber-500 relative overflow-hidden">
+                    <div onclick="openCheckout('季度会员', '599', '200次深度聊天额度')" class="glass-morphism p-5 rounded-3xl border-l-4 border-amber-500 relative cursor-pointer hover:bg-white/10 transition-all">
                         <div class="absolute top-0 right-0 bg-amber-500 text-slate-950 text-[10px] px-3 py-1 font-bold rounded-bl-xl uppercase">Best Value</div>
                         <div class="flex justify-between items-start mb-4">
                             <div>
@@ -197,7 +280,7 @@
                         </div>
                     </div>
 
-                    <div class="glass-morphism p-5 rounded-3xl border-l-4 border-purple-500 relative overflow-hidden">
+                    <div onclick="openCheckout('年度至尊会员', '1999', '无限聊天次数 + 优先响应')" class="glass-morphism p-5 rounded-3xl border-l-4 border-purple-500 cursor-pointer hover:bg-white/10 transition-all">
                         <div class="flex justify-between items-start mb-4">
                             <div>
                                 <h3 class="font-bold text-lg text-purple-300">年度至尊会员</h3>
@@ -215,13 +298,64 @@
                 </div>
             </div>
 
+            <!-- 收银台页面 -->
+            <div id="page-checkout" class="hidden px-6 pt-4 animate-slide">
+                <div class="mb-6 flex items-center">
+                    <button onclick="switchPage('pay')" class="mr-4 text-slate-400 p-2"><i class="fa-solid fa-arrow-left"></i></button>
+                    <h2 class="text-xl font-bold">收银台</h2>
+                </div>
+
+                <div class="glass-morphism p-6 rounded-3xl mb-6 text-center">
+                    <p id="checkout-plan" class="text-slate-400 text-sm mb-1">正在购买：年度至尊会员</p>
+                    <div class="flex items-baseline justify-center space-x-1">
+                        <span class="text-sm font-medium">¥</span>
+                        <span id="checkout-price" class="text-4xl font-bold">1999</span>
+                    </div>
+                </div>
+
+                <div class="space-y-3 mb-8">
+                    <p class="text-xs text-slate-500 ml-1">选择支付方式</p>
+                    
+                    <div class="payment-option">
+                        <input type="radio" name="pay-method" id="pay-wechat" class="hidden" checked>
+                        <label for="pay-wechat" class="flex items-center justify-between p-4 bg-slate-900 rounded-2xl border border-slate-800 cursor-pointer transition-all">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-emerald-500/10 rounded-full flex items-center justify-center">
+                                    <i class="fa-brands fa-weixin text-emerald-500 text-xl"></i>
+                                </div>
+                                <span class="font-medium">微信支付</span>
+                            </div>
+                            <i class="fa-solid fa-circle-check text-indigo-500 check-icon"></i>
+                        </label>
+                    </div>
+
+                    <div class="payment-option">
+                        <input type="radio" name="pay-method" id="pay-alipay" class="hidden">
+                        <label for="pay-alipay" class="flex items-center justify-between p-4 bg-slate-900 rounded-2xl border border-slate-800 cursor-pointer transition-all">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-blue-500/10 rounded-full flex items-center justify-center">
+                                    <i class="fa-brands fa-alipay text-blue-500 text-xl"></i>
+                                </div>
+                                <span class="font-medium">支付宝</span>
+                            </div>
+                            <i class="fa-solid fa-circle-check text-slate-700 check-icon"></i>
+                        </label>
+                    </div>
+                </div>
+
+                <button onclick="processPayment()" class="w-full bg-indigo-600 py-4 rounded-2xl font-bold text-lg shadow-xl shadow-indigo-600/30">
+                    立即支付
+                </button>
+                <p class="text-center text-[10px] text-slate-600 mt-4">支付即代表您已阅读并同意《服务协议》</p>
+            </div>
+
             <!-- 聊天容器 (覆盖全屏) -->
             <div id="chat-container" class="hidden fixed inset-0 z-[150] bg-slate-950 flex flex-col">
                 <div class="p-6 flex items-center border-b border-white/5">
-                    <button onclick="hideChat()" class="mr-4 text-slate-400"><i class="fa-solid fa-chevron-left"></i></button>
+                    <button onclick="hideChat()" class="mr-4 text-slate-400 p-2"><i class="fa-solid fa-chevron-left"></i></button>
                     <div class="flex-1">
                         <h3 id="chat-title" class="font-bold">苏菲</h3>
-                        <p class="text-[10px] text-emerald-500">正在听你倾诉...</p>
+                        <p class="text-[10px] text-emerald-500 font-medium">正在听你倾诉...</p>
                     </div>
                 </div>
                 <div id="message-list" class="flex-1 overflow-y-auto p-6 space-y-4 no-scrollbar"></div>
@@ -241,19 +375,19 @@
             <div class="relative w-full max-w-md bg-slate-900 rounded-t-[32px] p-8 animate-slide shadow-2xl">
                 <div class="w-12 h-1 bg-slate-700 rounded-full mx-auto mb-8"></div>
                 <div class="flex space-x-4 mb-6">
-                    <img id="modal-img" src="" class="w-20 h-20 rounded-2xl border border-white/10 shadow-lg">
+                    <img id="modal-img" src="" class="w-20 h-20 rounded-2xl border border-white/10 shadow-lg bg-slate-800">
                     <div>
                         <h3 id="modal-name" class="text-2xl font-bold text-white"></h3>
-                        <p id="modal-title-text" class="text-indigo-400 text-sm mt-1"></p>
+                        <p id="modal-title-text" class="text-indigo-400 text-sm mt-1 font-medium"></p>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-4 mb-6">
                     <div class="bg-white/5 p-4 rounded-2xl border border-white/5">
-                        <p class="text-[10px] text-slate-500 uppercase">当前在聊</p>
+                        <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">当前在聊</p>
                         <p id="modal-count" class="text-lg font-bold text-white"></p>
                     </div>
                     <div class="bg-white/5 p-4 rounded-2xl border border-white/5">
-                        <p class="text-[10px] text-slate-500 uppercase">累计时长</p>
+                        <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">累计时长</p>
                         <p id="modal-duration" class="text-lg font-bold text-white"></p>
                     </div>
                 </div>
@@ -263,13 +397,13 @@
 
         <!-- 底部导航 -->
         <nav id="bottom-nav" class="hidden h-20 bg-slate-950/90 border-t border-white/5 absolute bottom-0 left-0 right-0 px-12 flex justify-between items-center safe-area-bottom z-50">
-            <button onclick="switchPage('discover')" id="nav-discover" class="flex flex-col items-center space-y-1 text-indigo-500">
+            <button onclick="switchPage('discover')" id="nav-discover" class="flex flex-col items-center space-y-1 text-indigo-500 transition-colors">
                 <i class="fa-solid fa-compass text-xl"></i>
-                <span class="text-[10px]">发现</span>
+                <span class="text-[10px] font-bold">发现</span>
             </button>
-            <button onclick="switchPage('profile')" id="nav-profile" class="flex flex-col items-center space-y-1 text-slate-500">
+            <button onclick="switchPage('profile')" id="nav-profile" class="flex flex-col items-center space-y-1 text-slate-500 transition-colors">
                 <i class="fa-solid fa-user-tie text-xl"></i>
-                <span class="text-[10px]">我的</span>
+                <span class="text-[10px] font-bold">我的</span>
             </button>
         </nav>
 
@@ -284,7 +418,6 @@
             { id: 5, name: '沈悦', title: '财经记者 / 宏观经济', count: '982', duration: '11,200h', avatar: 'Clara' }
         ];
 
-        let timeLeft = 120 * 60;
         let selectedRole = null;
 
         function showAuth(type) {
@@ -300,23 +433,22 @@
             document.getElementById('main-content').classList.remove('hidden');
             document.getElementById('bottom-nav').classList.remove('hidden');
             renderRoles();
-            startTimer();
         }
 
         function renderRoles() {
             const list = document.getElementById('role-list');
             list.innerHTML = roles.map(role => `
-                <div onclick="openRole(${role.id})" class="glass-morphism p-5 rounded-[28px] flex items-center space-x-4 cursor-pointer hover:bg-white/10 animate-slide">
+                <div onclick="openRole(${role.id})" class="glass-morphism p-5 rounded-[28px] flex items-center space-x-4 cursor-pointer hover:bg-white/10 animate-slide transition-all">
                     <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${role.avatar}" class="w-16 h-16 rounded-2xl bg-slate-800">
                     <div class="flex-1">
                         <div class="flex justify-between items-center mb-1">
                             <h3 class="font-bold text-white">${role.name}</h3>
                             <i class="fa-solid fa-circle-check text-indigo-500 text-[10px]"></i>
                         </div>
-                        <p class="text-xs text-slate-500">${role.title}</p>
+                        <p class="text-xs text-slate-500 font-medium">${role.title}</p>
                         <div class="flex items-center space-x-3 mt-2">
-                            <span class="text-[9px] text-slate-400"><i class="fa-solid fa-users mr-1"></i>${role.count}</span>
-                            <span class="text-[9px] text-slate-400"><i class="fa-solid fa-clock mr-1"></i>${role.duration}</span>
+                            <span class="text-[9px] text-slate-400 font-bold"><i class="fa-solid fa-users mr-1"></i>${role.count}</span>
+                            <span class="text-[9px] text-slate-400 font-bold"><i class="fa-solid fa-clock mr-1"></i>${role.duration}</span>
                         </div>
                     </div>
                 </div>
@@ -342,9 +474,9 @@
             const list = document.getElementById('message-list');
             list.innerHTML = `
                 <div class="flex items-start space-x-3">
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedRole.avatar}" class="w-8 h-8 rounded-full">
-                    <div class="bg-slate-800 p-4 rounded-2xl rounded-tl-none text-sm max-w-[85%] text-slate-300">
-                        你好。听助理说，你今天想和我聊聊？我是${selectedRole.name}，很高兴在DeepTalk遇到你。
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedRole.avatar}" class="w-8 h-8 rounded-full bg-slate-800">
+                    <div class="bg-slate-800 p-4 rounded-2xl rounded-tl-none text-sm max-w-[85%] text-slate-300 shadow-sm leading-relaxed">
+                        你好。听助理说，你今天想和我聊聊？我是${selectedRole.name}，很高兴在DeepTalk遇到你。在投资或宏观层面，你有什么困惑吗？
                     </div>
                 </div>
             `;
@@ -353,25 +485,63 @@
         function hideChat() { document.getElementById('chat-container').classList.add('hidden'); }
 
         function switchPage(page) {
-            const pages = ['page-discover', 'page-profile', 'page-pay'];
+            const pages = ['page-discover', 'page-profile', 'page-pay', 'page-settings', 'page-checkout'];
             pages.forEach(p => document.getElementById(p).classList.add('hidden'));
             document.getElementById(`page-${page}`).classList.remove('hidden');
 
+            const isNavVisible = ['discover', 'profile'].includes(page);
+            document.getElementById('bottom-nav').className = isNavVisible ? 
+                'h-20 bg-slate-950/90 border-t border-white/5 absolute bottom-0 left-0 right-0 px-12 flex justify-between items-center safe-area-bottom z-50 animate-slide' : 
+                'hidden';
+
             document.getElementById('nav-discover').className = page === 'discover' ? 'flex flex-col items-center space-y-1 text-indigo-500' : 'flex flex-col items-center space-y-1 text-slate-500';
-            document.getElementById('nav-profile').className = (page === 'profile' || page === 'pay') ? 'flex flex-col items-center space-y-1 text-indigo-500' : 'flex flex-col items-center space-y-1 text-slate-500';
+            document.getElementById('nav-profile').className = (['profile', 'pay', 'settings', 'checkout'].includes(page)) ? 'flex flex-col items-center space-y-1 text-indigo-500' : 'flex flex-col items-center space-y-1 text-slate-500';
             
-            document.getElementById('page-title').innerText = page === 'discover' ? "发现" : (page === 'pay' ? "充值" : "我的");
+            const titles = { discover: '发现', pay: '充值中心', settings: '设置', checkout: '收银台', profile: '我的' };
+            document.getElementById('page-title').innerText = titles[page] || "DeepTalk";
         }
 
-        function startTimer() {
-            setInterval(() => {
-                if (timeLeft > 0) {
-                    timeLeft--;
-                    const m = Math.floor(timeLeft / 60);
-                    const s = timeLeft % 60;
-                    document.getElementById('trial-timer').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-                }
-            }, 1000);
+        function saveSettings() {
+            const newNick = document.getElementById('nickname-input').value;
+            const newEmail = document.getElementById('email-input').value;
+            document.getElementById('display-nickname').innerText = newNick;
+            document.getElementById('user-email-profile').innerText = newEmail;
+            showToast("设置已保存");
+            setTimeout(() => switchPage('profile'), 800);
+        }
+
+        function openCheckout(plan, price) {
+            document.getElementById('checkout-plan').innerText = `正在购买：${plan}`;
+            document.getElementById('checkout-price').innerText = price;
+            switchPage('checkout');
+        }
+
+        function processPayment() {
+            showToast("正在发起支付...");
+            setTimeout(() => {
+                showToast("支付成功！会员已激活");
+                setTimeout(() => switchPage('profile'), 1500);
+            }, 2000);
+        }
+
+        function copyEmail() {
+            const email = "zhonghuimin5@gmail.com";
+            const tempInput = document.createElement("input");
+            tempInput.value = email;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+            showToast("邮箱已复制");
+        }
+
+        function showToast(text) {
+            const toast = document.getElementById('toast-modal');
+            document.getElementById('toast-text').innerText = text;
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 2500);
         }
     </script>
 </body>
