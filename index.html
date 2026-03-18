@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepTalk AI - 高知男性智性陪伴</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #0f172a;
+        }
+
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .safe-area-bottom {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        /* 隐藏滚动条 */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .animate-slide { animation: slideIn 0.3s ease-out forwards; }
+    </style>
+</head>
+<body class="flex justify-center items-center min-h-screen bg-slate-900">
+
+    <div id="app-container" class="w-full max-w-md h-[844px] bg-slate-950 text-slate-200 overflow-hidden relative shadow-2xl flex flex-col border border-slate-800">
+        
+        <!-- 登录注册模块 (覆盖全屏) -->
+        <div id="auth-section" class="absolute inset-0 z-[200] bg-slate-950 p-8 flex flex-col">
+            <div id="auth-login" class="flex flex-col h-full">
+                <div class="mt-12 mb-12">
+                    <h1 class="text-3xl font-bold text-white mb-2">欢迎回来</h1>
+                    <p class="text-slate-500 text-sm">登录 DeepTalk，开始智性交流</p>
+                </div>
+                <div class="space-y-4">
+                    <input type="email" placeholder="邮箱地址" class="w-full bg-slate-900 border border-slate-800 p-4 rounded-2xl outline-none focus:border-indigo-500 transition-all">
+                    <input type="password" placeholder="登录密码" class="w-full bg-slate-900 border border-slate-800 p-4 rounded-2xl outline-none focus:border-indigo-500 transition-all">
+                    <div class="text-right">
+                        <button onclick="showAuth('forgot')" class="text-xs text-indigo-400">忘记密码？</button>
+                    </div>
+                </div>
+                <button onclick="finishAuth()" class="w-full bg-indigo-600 py-4 rounded-2xl font-bold mt-8 shadow-lg shadow-indigo-500/20">登录</button>
+                <p class="text-center text-sm text-slate-500 mt-6">
+                    没有账号？ <button onclick="showAuth('register')" class="text-indigo-400 font-bold">立即注册</button>
+                </p>
+            </div>
+
+            <div id="auth-register" class="hidden flex flex-col h-full animate-slide">
+                <div class="mt-12 mb-8">
+                    <h1 class="text-3xl font-bold text-white mb-2">创建账号</h1>
+                    <p class="text-slate-500 text-sm">通过邮箱验证开启试用</p>
+                </div>
+                <div class="space-y-4">
+                    <div class="relative">
+                        <input type="email" placeholder="输入邮箱" class="w-full bg-slate-900 border border-slate-800 p-4 rounded-2xl outline-none focus:border-indigo-500">
+                        <button class="absolute right-4 top-4 text-xs text-indigo-400 font-bold">获取验证码</button>
+                    </div>
+                    <input type="text" placeholder="邮箱验证码" class="w-full bg-slate-900 border border-slate-800 p-4 rounded-2xl outline-none focus:border-indigo-500">
+                    <input type="password" placeholder="设置登录密码" class="w-full bg-slate-900 border border-slate-800 p-4 rounded-2xl outline-none focus:border-indigo-500">
+                </div>
+                <button onclick="finishAuth()" class="w-full bg-indigo-600 py-4 rounded-2xl font-bold mt-8">完成注册</button>
+                <button onclick="showAuth('login')" class="text-slate-500 text-sm mt-6"><i class="fa-solid fa-arrow-left mr-2"></i>返回登录</button>
+            </div>
+
+            <div id="auth-forgot" class="hidden flex flex-col h-full animate-slide">
+                <div class="mt-12 mb-8">
+                    <h1 class="text-3xl font-bold text-white mb-2">重置密码</h1>
+                    <p class="text-slate-500 text-sm">验证邮箱后设置新密码</p>
+                </div>
+                <div class="space-y-4">
+                    <input type="email" placeholder="已绑定的邮箱" class="w-full bg-slate-900 border border-slate-800 p-4 rounded-2xl outline-none focus:border-indigo-500">
+                    <div class="relative">
+                        <input type="text" placeholder="验证码" class="w-full bg-slate-900 border border-slate-800 p-4 rounded-2xl outline-none focus:border-indigo-500">
+                        <button class="absolute right-4 top-4 text-xs text-indigo-400 font-bold">获取验证码</button>
+                    </div>
+                    <input type="password" placeholder="新密码" class="w-full bg-slate-900 border border-slate-800 p-4 rounded-2xl outline-none focus:border-indigo-500">
+                </div>
+                <button onclick="showAuth('login')" class="w-full bg-indigo-600 py-4 rounded-2xl font-bold mt-8">更新并登录</button>
+            </div>
+        </div>
+
+        <!-- 页面顶部 -->
+        <div id="main-header" class="hidden flex justify-between items-center px-6 pt-6 pb-4 bg-slate-950/80 sticky top-0 z-50">
+            <div>
+                <h1 id="page-title" class="text-xl font-bold text-white">发现</h1>
+                <p id="sub-title" class="text-[10px] text-slate-500 uppercase">120min Trial Active</p>
+            </div>
+            <div class="flex items-center space-x-3 bg-indigo-500/10 px-3 py-1.5 rounded-full border border-indigo-500/30">
+                <i class="fa-solid fa-hourglass-start text-indigo-400 text-xs"></i>
+                <span id="trial-timer" class="text-xs font-mono text-indigo-300">120:00</span>
+            </div>
+        </div>
+
+        <!-- 内容区域 -->
+        <div id="main-content" class="hidden flex-1 overflow-y-auto no-scrollbar pb-24">
+            
+            <!-- 角色发现页 -->
+            <div id="page-discover" class="px-6 space-y-4">
+                <div id="role-list" class="grid grid-cols-1 gap-4 pt-4"></div>
+            </div>
+
+            <!-- 我的页面 -->
+            <div id="page-profile" class="hidden px-6 pt-4 animate-slide">
+                <div class="flex flex-col items-center py-6">
+                    <div class="relative mb-4">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" class="w-20 h-20 rounded-3xl border border-indigo-500 p-1">
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <input id="nickname-input" type="text" value="Fantuan" class="bg-transparent text-xl font-bold text-center w-40 outline-none border-b border-transparent focus:border-indigo-500">
+                        <i class="fa-solid fa-pen-to-square text-slate-500 text-xs"></i>
+                    </div>
+                    <p id="user-email" class="text-xs text-slate-500 mt-1">fantuan@deeptalk.ai</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mb-8">
+                    <div class="glass-morphism p-4 rounded-2xl text-center">
+                        <p class="text-[10px] text-slate-500 mb-1">剩余免费时长</p>
+                        <p class="text-lg font-bold text-indigo-400">120 <span class="text-[10px] font-normal">min</span></p>
+                    </div>
+                    <div class="glass-morphism p-4 rounded-2xl text-center">
+                        <p class="text-[10px] text-slate-500 mb-1">对话额度</p>
+                        <p class="text-lg font-bold text-emerald-400">10 <span class="text-[10px] font-normal">次</span></p>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <div onclick="switchPage('pay')" class="glass-morphism p-4 rounded-2xl flex justify-between items-center cursor-pointer hover:bg-white/10">
+                        <div class="flex items-center space-x-3">
+                            <i class="fa-solid fa-gem text-amber-500"></i>
+                            <span>充值中心</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-xs text-slate-600"></i>
+                    </div>
+                    <div class="glass-morphism p-4 rounded-2xl flex justify-between items-center">
+                        <div class="flex items-center space-x-3">
+                            <i class="fa-solid fa-lock text-slate-400"></i>
+                            <span>修改登录密码</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-xs text-slate-600"></i>
+                    </div>
+                    <button onclick="location.reload()" class="w-full text-center text-red-500/70 text-sm mt-8">退出登录</button>
+                </div>
+            </div>
+
+            <!-- 充值中心页面 -->
+            <div id="page-pay" class="hidden px-6 pt-4 animate-slide">
+                <div class="mb-6 flex items-center">
+                    <button onclick="switchPage('profile')" class="mr-4 text-slate-400"><i class="fa-solid fa-arrow-left"></i></button>
+                    <h2 class="text-xl font-bold">充值中心</h2>
+                </div>
+                
+                <div class="space-y-4 pb-8">
+                    <div class="glass-morphism p-5 rounded-3xl border-l-4 border-indigo-500 relative overflow-hidden group">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="font-bold text-lg">月度会员</h3>
+                                <p class="text-xs text-slate-400">适合高频倾诉者</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xl font-bold text-white">¥199</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2 text-xs text-indigo-300 bg-indigo-500/10 w-fit px-2 py-1 rounded">
+                            <i class="fa-solid fa-clock"></i>
+                            <span>每月30小时通话时长</span>
+                        </div>
+                    </div>
+
+                    <div class="glass-morphism p-5 rounded-3xl border-l-4 border-amber-500 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 bg-amber-500 text-slate-950 text-[10px] px-3 py-1 font-bold rounded-bl-xl uppercase">Best Value</div>
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="font-bold text-lg">季度会员</h3>
+                                <p class="text-xs text-slate-400">适合长期价值投资者</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xl font-bold text-white">¥599</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2 text-xs text-amber-300 bg-amber-500/10 w-fit px-2 py-1 rounded">
+                            <i class="fa-solid fa-message"></i>
+                            <span>200次深度聊天额度</span>
+                        </div>
+                    </div>
+
+                    <div class="glass-morphism p-5 rounded-3xl border-l-4 border-purple-500 relative overflow-hidden">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="font-bold text-lg text-purple-300">年度至尊会员</h3>
+                                <p class="text-xs text-slate-400">无限次智性陪伴</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xl font-bold text-white">¥1999</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2 text-xs text-purple-300 bg-purple-500/10 w-fit px-2 py-1 rounded">
+                            <i class="fa-solid fa-infinity"></i>
+                            <span>无限聊天次数 + 优先响应</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 聊天容器 (覆盖全屏) -->
+            <div id="chat-container" class="hidden fixed inset-0 z-[150] bg-slate-950 flex flex-col">
+                <div class="p-6 flex items-center border-b border-white/5">
+                    <button onclick="hideChat()" class="mr-4 text-slate-400"><i class="fa-solid fa-chevron-left"></i></button>
+                    <div class="flex-1">
+                        <h3 id="chat-title" class="font-bold">苏菲</h3>
+                        <p class="text-[10px] text-emerald-500">正在听你倾诉...</p>
+                    </div>
+                </div>
+                <div id="message-list" class="flex-1 overflow-y-auto p-6 space-y-4 no-scrollbar"></div>
+                <div class="p-6 border-t border-white/5 safe-area-bottom">
+                    <div class="flex items-center space-x-3 bg-slate-900 p-2 rounded-2xl">
+                        <input type="text" placeholder="输入你想聊的行业见解..." class="flex-1 bg-transparent px-3 outline-none text-sm">
+                        <button class="bg-indigo-600 w-10 h-10 rounded-xl flex items-center justify-center"><i class="fa-solid fa-paper-plane text-xs"></i></button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 角色详情 Modal -->
+        <div id="role-modal" class="hidden fixed inset-0 z-[160] flex items-end justify-center px-4">
+            <div class="absolute inset-0 bg-black/70 backdrop-blur-md" onclick="closeModal()"></div>
+            <div class="relative w-full max-w-md bg-slate-900 rounded-t-[32px] p-8 animate-slide shadow-2xl">
+                <div class="w-12 h-1 bg-slate-700 rounded-full mx-auto mb-8"></div>
+                <div class="flex space-x-4 mb-6">
+                    <img id="modal-img" src="" class="w-20 h-20 rounded-2xl border border-white/10 shadow-lg">
+                    <div>
+                        <h3 id="modal-name" class="text-2xl font-bold text-white"></h3>
+                        <p id="modal-title-text" class="text-indigo-400 text-sm mt-1"></p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="bg-white/5 p-4 rounded-2xl border border-white/5">
+                        <p class="text-[10px] text-slate-500 uppercase">当前在聊</p>
+                        <p id="modal-count" class="text-lg font-bold text-white"></p>
+                    </div>
+                    <div class="bg-white/5 p-4 rounded-2xl border border-white/5">
+                        <p class="text-[10px] text-slate-500 uppercase">累计时长</p>
+                        <p id="modal-duration" class="text-lg font-bold text-white"></p>
+                    </div>
+                </div>
+                <button onclick="startChat()" class="w-full bg-indigo-600 py-4 rounded-2xl font-bold text-lg shadow-xl shadow-indigo-600/20">开始交流</button>
+            </div>
+        </div>
+
+        <!-- 底部导航 -->
+        <nav id="bottom-nav" class="hidden h-20 bg-slate-950/90 border-t border-white/5 absolute bottom-0 left-0 right-0 px-12 flex justify-between items-center safe-area-bottom z-50">
+            <button onclick="switchPage('discover')" id="nav-discover" class="flex flex-col items-center space-y-1 text-indigo-500">
+                <i class="fa-solid fa-compass text-xl"></i>
+                <span class="text-[10px]">发现</span>
+            </button>
+            <button onclick="switchPage('profile')" id="nav-profile" class="flex flex-col items-center space-y-1 text-slate-500">
+                <i class="fa-solid fa-user-tie text-xl"></i>
+                <span class="text-[10px]">我的</span>
+            </button>
+        </nav>
+
+    </div>
+
+    <script>
+        const roles = [
+            { id: 1, name: '苏菲', title: '投资女神 / 金融交流', count: '2,482', duration: '14,290h', avatar: 'Sophie' },
+            { id: 2, name: '林悦', title: '职场导师 / 互联网', count: '1,503', duration: '9,420h', avatar: 'Elena' },
+            { id: 3, name: '莫妮卡', title: '深夜电台主播 / 陪伴', count: '3,820', duration: '31,200h', avatar: 'Willow' },
+            { id: 4, name: '夏晴', title: '创业伙伴 / 商业交流', count: '1,290', duration: '8,900h', avatar: 'Maya' },
+            { id: 5, name: '沈悦', title: '财经记者 / 宏观经济', count: '982', duration: '11,200h', avatar: 'Clara' }
+        ];
+
+        let timeLeft = 120 * 60;
+        let selectedRole = null;
+
+        function showAuth(type) {
+            document.getElementById('auth-login').classList.add('hidden');
+            document.getElementById('auth-register').classList.add('hidden');
+            document.getElementById('auth-forgot').classList.add('hidden');
+            document.getElementById(`auth-${type}`).classList.remove('hidden');
+        }
+
+        function finishAuth() {
+            document.getElementById('auth-section').classList.add('hidden');
+            document.getElementById('main-header').classList.remove('hidden');
+            document.getElementById('main-content').classList.remove('hidden');
+            document.getElementById('bottom-nav').classList.remove('hidden');
+            renderRoles();
+            startTimer();
+        }
+
+        function renderRoles() {
+            const list = document.getElementById('role-list');
+            list.innerHTML = roles.map(role => `
+                <div onclick="openRole(${role.id})" class="glass-morphism p-5 rounded-[28px] flex items-center space-x-4 cursor-pointer hover:bg-white/10 animate-slide">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${role.avatar}" class="w-16 h-16 rounded-2xl bg-slate-800">
+                    <div class="flex-1">
+                        <div class="flex justify-between items-center mb-1">
+                            <h3 class="font-bold text-white">${role.name}</h3>
+                            <i class="fa-solid fa-circle-check text-indigo-500 text-[10px]"></i>
+                        </div>
+                        <p class="text-xs text-slate-500">${role.title}</p>
+                        <div class="flex items-center space-x-3 mt-2">
+                            <span class="text-[9px] text-slate-400"><i class="fa-solid fa-users mr-1"></i>${role.count}</span>
+                            <span class="text-[9px] text-slate-400"><i class="fa-solid fa-clock mr-1"></i>${role.duration}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openRole(id) {
+            selectedRole = roles.find(r => r.id === id);
+            document.getElementById('modal-name').innerText = selectedRole.name;
+            document.getElementById('modal-title-text').innerText = selectedRole.title;
+            document.getElementById('modal-count').innerText = selectedRole.count;
+            document.getElementById('modal-duration').innerText = selectedRole.duration;
+            document.getElementById('modal-img').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedRole.avatar}`;
+            document.getElementById('role-modal').classList.remove('hidden');
+        }
+
+        function closeModal() { document.getElementById('role-modal').classList.add('hidden'); }
+
+        function startChat() {
+            closeModal();
+            document.getElementById('chat-container').classList.remove('hidden');
+            document.getElementById('chat-title').innerText = selectedRole.name;
+            const list = document.getElementById('message-list');
+            list.innerHTML = `
+                <div class="flex items-start space-x-3">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedRole.avatar}" class="w-8 h-8 rounded-full">
+                    <div class="bg-slate-800 p-4 rounded-2xl rounded-tl-none text-sm max-w-[85%] text-slate-300">
+                        你好。听助理说，你今天想和我聊聊？我是${selectedRole.name}，很高兴在DeepTalk遇到你。
+                    </div>
+                </div>
+            `;
+        }
+
+        function hideChat() { document.getElementById('chat-container').classList.add('hidden'); }
+
+        function switchPage(page) {
+            const pages = ['page-discover', 'page-profile', 'page-pay'];
+            pages.forEach(p => document.getElementById(p).classList.add('hidden'));
+            document.getElementById(`page-${page}`).classList.remove('hidden');
+
+            document.getElementById('nav-discover').className = page === 'discover' ? 'flex flex-col items-center space-y-1 text-indigo-500' : 'flex flex-col items-center space-y-1 text-slate-500';
+            document.getElementById('nav-profile').className = (page === 'profile' || page === 'pay') ? 'flex flex-col items-center space-y-1 text-indigo-500' : 'flex flex-col items-center space-y-1 text-slate-500';
+            
+            document.getElementById('page-title').innerText = page === 'discover' ? "发现" : (page === 'pay' ? "充值" : "我的");
+        }
+
+        function startTimer() {
+            setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    const m = Math.floor(timeLeft / 60);
+                    const s = timeLeft % 60;
+                    document.getElementById('trial-timer').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
